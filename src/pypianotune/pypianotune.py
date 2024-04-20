@@ -7,7 +7,7 @@ RIGHT_HAND_LENGTH = [0.01, 0.6, 0.29, 0.1]
 LEFT_HAND_LENGTH = [0.01, 0.29, 0.6, 0.1]
 DECAY = [0.05, 0.02, 0.005, 0.1]
 SUSTAIN_LEVEL = 0.1
-BASE_FREQUENCY = 440  #Frequency of Note A4
+A4_FREQUENCY = 440  #Frequency of Note A4
 SAMPLE_RATE = 44100
 AMPLITUDE = 4096
 DUPLE = 2
@@ -77,7 +77,7 @@ class PyPianoTune:
 
     def __init__(self):
         # Define default values for various parameters
-        self.base_freq = BASE_FREQUENCY
+        self.base_freq = A4_FREQUENCY
         self.bar_value = DUPLE
         self.factor = C4_FACTOR
         self.length = RIGHT_HAND_LENGTH
@@ -262,7 +262,7 @@ class PyPianoTune:
         return song
 
     # Combine one or more song data for Audio readiness
-    def getAudioFromSongData(self, *args):
+    def appendSongData(self, *args):
         # Check if all arguments are ndarrays
         if not all(isinstance(arr, np.ndarray) for arr in args):
             raise ValueError("All arguments must be NumPy ndarrays")
