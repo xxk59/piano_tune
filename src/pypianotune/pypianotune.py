@@ -87,7 +87,7 @@ class PyPianoTune:
         self.amplitude = AMPLITUDE
 
     # Get the fundamental frequencies of the 88 keys of the piano, as well as the stop
-    def getPianoNotes(self):   
+    def get_piano_notes(self):
         # White keys are in Uppercase and black keys (sharps) are in lowercase
         octave = ['C', 'c', 'D', 'd', 'E', 'F', 'f', 'G', 'g', 'A', 'a', 'B'] 
         keys = np.array([x+str(y) for y in range(0,9) for x in octave])
@@ -101,7 +101,7 @@ class PyPianoTune:
         return note_freqs
 
     # Generate sound wave corresponding to frequency
-    def getSineWave(self, frequency, duration, sample_rate=None, amplitude=None):
+    def get_sine_wave(self, frequency, duration, sample_rate=None, amplitude=None):
         if sample_rate is None:
             sample_rate = self.sample_rate
         if amplitude is None:
@@ -112,7 +112,7 @@ class PyPianoTune:
         return wave
 
     # Apply overtones to the fundamental tone
-    def applyOverTones(self, frequency, duration, factor, sample_rate=None, amplitude=None):
+    def apply_over_tones(self, frequency, duration, factor, sample_rate=None, amplitude=None):
         if sample_rate is None:
             sample_rate = self.sample_rate
         if amplitude is None:
@@ -123,14 +123,14 @@ class PyPianoTune:
         frequencies = np.minimum(np.array([frequency*(x+1) for x in range(len(factor))]), sample_rate//2)
         amplitudes = np.array([amplitude*x for x in factor])
         
-        fundamental = self.getSineWave(frequencies[0], duration, sample_rate, amplitudes[0])
+        fundamental = self.get_sine_wave(frequencies[0], duration, sample_rate, amplitudes[0])
         for i in range(1, len(factor)):
-            overtone = self.getSineWave(frequencies[i], duration, sample_rate, amplitudes[i])
+            overtone = self.get_sine_wave(frequencies[i], duration, sample_rate, amplitudes[i])
             fundamental += overtone
         return fundamental
 
     # Apply ADSR effects
-    def getADSRWeights(self, frequency, duration, length, decay, sustain_level, sample_rate=None):
+    def get_adsr_weights(self, frequency, duration, length, decay, sustain_level, sample_rate=None):
         if sample_rate is None:
             sample_rate = self.sample_rate
 
@@ -171,7 +171,7 @@ class PyPianoTune:
         return weights
 
     # Apply pedal effects to notes
-    def applyPedal(self, note_values, bar_value):
+    def apply_pedal(self, note_values, bar_value):
         new_values = []
 
         # Check that we have whole number of bars
@@ -195,7 +195,7 @@ class PyPianoTune:
         return new_values
 
     # Generate song data according to the music notes and duration data
-    def getSongData(self,
+    def get_song_data(self,
                     music_notes, 
                     note_values=None, 
                     bar_value=None, 
@@ -227,7 +227,7 @@ class PyPianoTune:
             amplitude = self.amplitude
 
         # Get note frequencies
-        note_freqs = self.getPianoNotes()
+        note_freqs = self.get_piano_notes()
 
         # Padding and align the music notes with the bar_value
         residual = np.sum(note_values) % bar_value
@@ -238,7 +238,7 @@ class PyPianoTune:
         frequencies = [note_freqs[note.strip()] for note in music_notes]
 
         # Get new note durations with sustain applied
-        new_values = self.applyPedal(note_values, bar_value)
+        new_values = self.apply_pedal(note_values, bar_value)
         # End of each note without sustain
         end_idx = np.cumsum(np.array(note_values)*sample_rate).astype(int)
         # Start of each note
@@ -252,9 +252,9 @@ class PyPianoTune:
         for i in range(len(music_notes)):
             # Fundamental + overtones
             if music_notes[i] != '':
-                this_note = self.applyOverTones(frequencies[i], new_values[i], factor)
+                this_note = self.apply_over_tones(frequencies[i], new_values[i], factor)
                 # ADSR model
-                weights = self.getADSRWeights(frequencies[i], new_values[i], length, 
+                weights = self.get_adsr_weights(frequencies[i], new_values[i], length, 
                                         decay, sustain_level)
                 song[start_idx[i]:end_idx[i]] += this_note*weights
 
@@ -262,7 +262,7 @@ class PyPianoTune:
         return song
 
     # Combine one or more song data for Audio readiness
-    def appendSongData(self, *args):
+    def append_song_data(self, *args):
         # Check if all arguments are ndarrays
         if not all(isinstance(arr, np.ndarray) for arr in args):
             raise ValueError("All arguments must be NumPy ndarrays")

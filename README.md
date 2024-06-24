@@ -31,7 +31,7 @@ note_values = [.5, .5, .5, .5, .5, .5, .5]
 
 pianoTuner = PyPianoTune()
 
-Audio(pianoTuner.getSongData(music_notes, note_values), rate=44100, autoplay=True)
+Audio(pianoTuner.get_song_data(music_notes, note_values), rate=44100, autoplay=True)
 ```
 
 ## License
